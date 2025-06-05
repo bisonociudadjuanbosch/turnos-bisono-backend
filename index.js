@@ -1,8 +1,9 @@
+// index.js (en la raíz del proyecto)
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
-const { loginRoute, verificarToken } = require('./auth');
+const { loginRoute, verificarToken } = require('./auth');  // <-- auth.js debe estar en la misma carpeta
 
 const app = express();
 const PORT = process.env.PORT || 3000;

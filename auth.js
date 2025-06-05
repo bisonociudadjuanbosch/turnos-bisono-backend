@@ -35,3 +35,4 @@ function verificarToken(req, res, next) {
 }
 
 module.exports = { loginRoute, verificarToken };
+
