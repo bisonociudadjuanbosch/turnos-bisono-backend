@@ -1,1 +1,4 @@
-[]
+[
+  { "id": 1, "numero": "001", "telefono": "8091234567", "estado": "Pendiente" },
+  { "id": 2, "numero": "002", "telefono": "8092345678", "estado": "Pendiente" }
+]

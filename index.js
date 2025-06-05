@@ -6,18 +6,27 @@ const path = require('path');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+const SECRET_KEY = 'clave-ultra-secreta-bisono';
 const app = express();
 const PORT = process.env.PORT || 3000;
-const SECRET_KEY = 'clave-ultra-secreta-bisono';
 
 app.use(cors());
 app.use(express.json());
 
+const usuariosPath = path.join(__dirname, 'usuarios.json');
+const turnosPath = path.join(__dirname, 'turnos.json');
+
+let usuarios = fs.existsSync(usuariosPath) ? JSON.parse(fs.readFileSync(usuariosPath, 'utf8')) : [];
+let turnos = fs.existsSync(turnosPath) ? JSON.parse(fs.readFileSync(turnosPath, 'utf8')) : [];
+
+// Ruta principal para verificar el estado de la API
+app.get('/', (req, res) => {
+  res.send('API de Turnos Bisonó en funcionamiento');
+});
+
 // Ruta para registrar nuevos usuarios
 app.post('/register', async (req, res) => {
   const { usuario, clave } = req.body;
-  const usuariosPath = path.join(__dirname, 'usuarios.json');
-  let usuarios = JSON.parse(fs.readFileSync(usuariosPath, 'utf8'));
 
   // Verificar si el usuario ya existe
   if (usuarios.some(u => u.usuario === usuario)) {
@@ -39,8 +48,6 @@ app.post('/register', async (req, res) => {
 // Ruta para login de operadores
 app.post('/login', (req, res) => {
   const { usuario, clave } = req.body;
-  const usuariosPath = path.join(__dirname, 'usuarios.json');
-  let usuarios = JSON.parse(fs.readFileSync(usuariosPath, 'utf8'));
 
   const usuarioEncontrado = usuarios.find(u => u.usuario === usuario);
   if (!usuarioEncontrado) {
@@ -59,8 +66,34 @@ app.post('/login', (req, res) => {
 
 // Rutas protegidas
 app.get('/turnos', verificarToken, (req, res) => {
-  // Lógica para obtener turnos
+  res.json(turnos);
 });
+
+app.patch('/turnos/:id', verificarToken, async (req, res) => {
+  const { id } = req.params;
+  const { nuevoEstado } = req.body;
+
+  const index = turnos.findIndex(t => t.id == id);
+  if (index === -1) return res.status(404).json({ error: 'Turno no encontrado' });
+
+  turnos[index].estado = nuevoEstado;
+
+  // Si cambia de Pendiente a otro estado, avisamos al siguiente
+  if (nuevoEstado !== 'Pendiente') {
+    const siguiente = turnos.find((t, i) => i > index && t.estado === 'Pendiente');
+    if (siguiente && siguiente.telefono) {
+      await enviarWhatsApp(siguiente.telefono, '¡Es tu turno! Por favor pasa con el Oficial de Ventas Bisonó.');
+    }
+  }
+
+  fs.writeFileSync(turnosPath, JSON.stringify(turnos, null, 2));
+  res.json(turnos[index]);
+});
+
+async function enviarWhatsApp(telefono, mensaje) {
+  console.log(`Enviando WhatsApp a ${telefono}: ${mensaje}`);
+  // Aquí puedes conectar con tu API real más adelante.
+}
 
 function verificarToken(req, res, next) {
   const authHeader = req.headers['authorization'];
