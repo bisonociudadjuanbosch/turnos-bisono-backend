@@ -1,5 +1,5 @@
 // index.js (en la raíz del proyecto)
-const express = require('express');
+const express = require('cors');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
@@ -21,7 +21,7 @@ let turnos = fs.existsSync(turnosPath) ? JSON.parse(fs.readFileSync(turnosPath, 
 
 // Ruta principal para verificar el estado de la API
 app.get('/', (req, res) => {
-  res.send('API de Turnos Bisonó en funcionamiento');
+  res.send('API funcionando con CORS');
 });
 
 // Ruta para registrar nuevos usuarios
