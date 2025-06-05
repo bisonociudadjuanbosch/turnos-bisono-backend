@@ -1,5 +1,5 @@
 // index.js (en la raíz del proyecto)
-const express = require('cors');
+const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
