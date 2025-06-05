@@ -3,7 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
-const { loginRoute, verificarToken } = require('./auth');  // <-- auth.js debe estar en la misma carpeta
+const { loginRoute, verificarToken } = require('./auth'); // Asegúrate de que auth.js esté en la misma carpeta
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -14,7 +14,12 @@ app.use(express.json());
 const turnosPath = path.join(__dirname, 'turnos.json');
 let turnos = fs.existsSync(turnosPath) ? JSON.parse(fs.readFileSync(turnosPath, 'utf8')) : [];
 
-// Ruta para registrar turnos desde frontend
+// Ruta principal para verificar el estado de la API
+app.get('/', (req, res) => {
+  res.send('API de Turnos Bisonó en funcionamiento');
+});
+
+// Ruta para registrar turnos desde el frontend
 app.post('/', (req, res) => {
   const nuevoTurno = {
     id: turnos.length + 1,
@@ -27,7 +32,7 @@ app.post('/', (req, res) => {
   res.json(nuevoTurno);
 });
 
-// Login para operadores
+// Ruta para login de operadores
 loginRoute(app);
 
 // Rutas protegidas
